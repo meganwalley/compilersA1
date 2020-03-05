@@ -188,6 +188,11 @@ public class assignmentOne {
                     stateSix = true;
                     stateFive = false;
                 }
+                // if we get a 'c', go back to stateFour
+                else if (file[i] == 'c') {
+                    stateFour = true;
+                    stateFive = false;
+                }
                 // otherwise, go back to stateThree
                 else {
                     stateFive = false;

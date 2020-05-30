@@ -1,12 +1,25 @@
-PDefs.   Program ::= [Def] ;
+--- Assignment 2
+--- Megan Walley
+--- hello.cc: No issues
+--- greet.cc: No issues
+--- med.cc: need custom typedef
+--- grade.cc: Custom typedef, gets stuck on line 26 and goes away if Student_info is replaced with "double"
+--- palin.cc: No issues
+--- grammar.cc: holy bananas
 
-DFun.    Def    ::= Type Id "(" [Arg] ")" "{" [Stm] "}" ;
 
+PDefs.   Program ::= [Use] [Def] ;
+UDef.    Use     ::= "using" Class ;
+DFun.    Def     ::= Type Id "(" [Arg] ")" "{" [Stm] "}" ;
+
+
+separator Use ";" ;                                     --- [Use] must be able to be empty
+terminator Def ";" ;
 terminator Def "" ;
+terminator nonempty Def "" ;
 
-ADecl.   Arg    ::= Type Id ;
-
-separator Arg "," ;
+ADecl.       Arg    ::= Type Id ;
+separator    Arg "," ;                                  --- [Arg] must be able to be empty
 
 SExp.        Stm ::= Exp ";" ;
 SDecls.      Stm ::= Type [Id] ";" ;
@@ -14,30 +27,55 @@ SInit.       Stm ::= Type Id "=" Exp ";" ;
 SReturn.     Stm ::= "return" Exp ";" ;
 SReturnVoid. Stm ::= "return" ";" ;
 SWhile.      Stm ::= "while" "(" Exp ")" Stm ;
+SFor.        Stm ::= "for" "(" Exp ";" Exp ";" Exp ")" Stm ; --- Not entirely sure if accurate.
 SBlock.      Stm ::= "{" [Stm] "}" ;
 SIfElse.     Stm ::= "if" "(" Exp ")" Stm "else" Stm ;
+SIf.         Stm ::= "if" "(" Exp ")" Stm ;             --- An incomplete if-else
+SThrow.      Stm ::= "throw" Exp ";" ;                  --- :)
+
+
+
+--- I don't think this is safe to do? Should be done differently to create
+--- a custom type at runtime, but HOW?
+STypeDef.    Stm ::= "typedef" Class Id ";" ;
 
 terminator Stm "" ;
+
+EId.     Exp15  ::= Id ; 
+EAppApp. Exp15  ::= Id "." Exp15 ;
+EApp.    Exp15  ::= Id "(" [Exp] ")" ;
+
+TypeDef.    Type  ::= Id "<" Type ">";
+ConstType.  Type  ::= "const" Type "&";
+
+ClassDef1.  ClassI ::= Id "::" Id ;
+ClassDef2.  ClassT ::= Id "::" Type ;
+ClassRDef1. ClassI ::= Class "::" Id ;
+ClassRDef2. ClassT ::= Class "::" Type ;
+
+ClassDefId. Exp15  ::= ClassI ;
+ClassDefTy. Type   ::= ClassT ;
+
+CDefI.      Class  ::= ClassI ;
+CDefT.      Class  ::= ClassT ;
 
 ETrue.   Exp15  ::= "true" ;
 EFalse.  Exp15  ::= "false" ;
 EInt.    Exp15  ::= Integer ;
 EDouble. Exp15  ::= Double ;
 EString. Exp15  ::= String ;
-EId.     Exp15  ::= Id ; 
-
-EApp.    Exp15  ::= Id "(" [Exp] ")" ;
+EWeird.  Exp15  ::= String String ;
 
 EPIncr.  Exp14  ::= Exp15 "++" ;
 EPDecr.  Exp14  ::= Exp15 "--" ;
-
 EIncr.   Exp13  ::= "++" Exp14 ;
 EDecr.   Exp13  ::= "--" Exp14 ;
-
 ETimes.  Exp12  ::= Exp12 "*"  Exp13 ;
 EDiv.    Exp12  ::= Exp12 "/"  Exp13 ;
 EPlus.   Exp11  ::= Exp11 "+"  Exp12 ;
 EMinus.  Exp11  ::= Exp11 "-"  Exp12 ;
+ELs.     Exp10  ::= Exp10 "<<" Exp ; --- Expression Left Shift
+ERs.     Exp10  ::= Exp10 ">>" Exp ; --- Expression Right Shift
 ELt.     Exp9   ::= Exp9  "<"  Exp10 ;
 EGt.     Exp9   ::= Exp9  ">"  Exp10 ;
 ELtEq.   Exp9   ::= Exp9  "<=" Exp10 ;
@@ -52,13 +90,14 @@ internal ETyped. Exp15 ::= "(" Exp ":" Type ")" ;
 
 coercions Exp 15 ;
 
-separator Exp "," ;
-
+--- How do I add a new type that's decided at runtime?
 rules Type   ::= "bool" | "int" | "double" | "void" | "string" ;
 
 token Id (letter (letter | digit | '_')*) ;
 
+separator Exp "," ;
 separator nonempty Id "," ;
+separator nonempty Type "," ;
 
 comment "#" ;
 comment "//" ;
